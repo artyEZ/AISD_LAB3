@@ -82,7 +82,7 @@ public:
 	friend ostream& operator << (ostream& os, const matrix<T>& m)
 	{
 		for (auto i : m){
-			for (auto &j : i){
+			for (auto j : i){
 				os << left << j << '\t';
 			}
 			os << endl;

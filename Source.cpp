@@ -79,7 +79,7 @@ public:
 	size_t get_columns() const { return data[0].size();}
 
 	//ѕерегрузка cout
-	friend ostream& operator << (ostream& os, const matrix<T>& m)
+	friend ostream& operator << (ostream& os, matrix<T>& m)
 	{
 		for (auto i : m){
 			for (auto j : i){
@@ -138,6 +138,8 @@ public:
 				temp[i][j] = data[i][j] - m.data[i][j];
 			}
 		}
+
+		data = temp;
 
 		return *this;
 	}
@@ -292,7 +294,7 @@ template<typename T>
 class matrix<complex<T>>
 {
 private:
-	complex<T>** data;
+	vector<vector<complex<T>>> data;
 	size_t _columns, _rows;
 
 public:
@@ -300,16 +302,21 @@ public:
 		srand(time(0));
 		_rows = rand() % 3 + 2;
 		_columns = _rows;
-		data = new complex<T> *[_rows];
+		data.resize(_rows);
+
 		for (size_t i = 0; i < _rows; ++i)
 		{
-			data[i] = new complex<T>[_columns];
+			data[i].resize(_columns);
 		}
+
 		for (size_t i = 0; i < _rows; i++)
 		{
 			for (size_t j = 0; j < _columns; j++)
 			{
-				data[i][j] = (rand() % 300) / 10.0;
+				T temp_real, temp_imag;
+				temp_real = (rand() % 300) / 10.0;
+				temp_imag = (rand() % 600) / 10.0;
+				data[i][j] = complex<T>(temp_real, temp_imag);
 			}
 		}
 	}
@@ -320,10 +327,10 @@ public:
 		_columns = columns;
 		_rows = rows;
 
-		data = new complex<T> *[_rows];
+		data.resize(_rows);
 		for (size_t i = 0; i < _rows; ++i)
 		{
-			data[i] = new complex<T>[_columns];
+			data[i].resize(_columns);
 		}
 
 		cout << "Input your values" << "\n";
@@ -342,48 +349,32 @@ public:
 		}
 	}
 
-	matrix(const matrix<complex<T>>& m) {
-		data = new complex<T> *[m._rows];
-		for (size_t i = 0; i < m._rows; ++i)
-		{
-			data[i] = new complex<T>[m._columns];
-		}
+	matrix(const matrix<complex<T>>& m) = default;
 
-		_rows = m._rows;
-		_columns = m._columns;
+	~matrix() = default;
 
-		for (size_t i = 0; i < _rows; i++)
-		{
-			for (size_t j = 0; j < _columns; j++)
-			{
-				data[i][j] = m.data[i][j];
-			}
-		}
+	auto begin() {
+		return data.begin();
 
 	}
 
-	~matrix() {
-		for (size_t i = 0; i < _rows; i++)
-		{
-			delete[] data[i];
-		}
-		delete[] data;
+	auto end() {
+		return data.end();
 	}
+
 
 	//Getters
-	size_t get_rows() const { return _rows; }
+	size_t get_rows() const { return data.size(); }
 
-	size_t get_columns() const { return _columns; }
+	size_t get_columns() const { return data[0].size(); }
 
 	//ѕерегрузка cout
-	friend ostream& operator << (ostream& os, const matrix<complex<T>>& m)
+	friend ostream& operator << (ostream& os,  matrix<complex<T>>& m)
 	{
-		for (size_t i = 0; i < m._rows; ++i)
-		{
-			for (size_t j = 0; j < m._columns; ++j)
-			{
+		for (auto i : m) {
+			for (auto j : i) {
 				cout.width(15);
-				os << left << m.data[i][j] << '\t';
+				os << left << j << '\t';
 			}
 			os << endl;
 		}
@@ -406,13 +397,17 @@ public:
 	matrix<complex<T>>& operator+=(const matrix<complex<T>>& m) {
 		if (_rows != m._rows or _columns != m._columns) throw "Size of matrix doesn't equal";
 
-		for (size_t i = 0; i < m._rows; i++)
+		vector<vector<complex<T>>> temp(_rows, vector<complex<T>>(_columns));
+
+		for (size_t i = 0; i < _rows; ++i)
 		{
-			for (size_t j = 0; j < m._columns; j++)
+			for (size_t j = 0; j < _columns; ++j)
 			{
-				data[i][j] += m.data[i][j];
+				temp[i][j] = data[i][j] + m.data[i][j];
 			}
 		}
+
+		data = temp;
 		return *this;
 	}
 
@@ -424,13 +419,17 @@ public:
 
 	matrix<complex<T>>& operator-=(const matrix<complex<T>>& m) {
 		if (_rows != m._rows or _columns != m._columns) throw "Size of matrix doesn't equal";
-		for (size_t i = 0; i < m._rows; i++)
+		vector<vector<complex<T>>> temp(_rows, vector<complex<T>>(_columns));
+
+		for (size_t i = 0; i < _rows; ++i)
 		{
-			for (size_t j = 0; j < m._columns; j++)
+			for (size_t j = 0; j < _columns; ++j)
 			{
-				data[i][j] -= m.data[i][j];
+				temp[i][j] = data[i][j] - m.data[i][j];
 			}
 		}
+
+		data = temp;
 		return *this;
 	}
 
@@ -445,17 +444,14 @@ public:
 
 		if (_columns != m._rows) throw "Dimensions do not match!";
 
-		complex<T>** temp = new complex<T> *[_rows];
-		for (size_t i = 0; i < _rows; ++i)
-		{
-			temp[i] = new complex<T>[m._columns];
-		}
+		vector<vector<complex<T>>> temp(_rows, vector<complex<T>>(m._columns));
 
-		for (size_t rows = 0; rows < _rows; rows++)
+		for (size_t rows = 0; rows < m._rows; rows++)
 		{
-			for (size_t col = 0; col < m._columns; col++)
+			for (size_t col = 0; col < _columns; col++)
 			{
 				temp[rows][col] = 0;
+
 				for (size_t inner = 0; inner < _columns; inner++)
 				{
 					temp[rows][col] += data[rows][inner] * m.data[inner][col];
@@ -465,13 +461,8 @@ public:
 
 		_columns = m._columns;
 
-		for (size_t i = 0; i < _rows; i++)
-		{
-			delete[] data[i];
-		}
-		delete[] data;
-
 		data = temp;
+
 		return *this;
 
 	}
@@ -484,7 +475,7 @@ public:
 
 	//оператор умножени€ матрицы на скал€р(обеспечить коммутативность);
 
-	matrix<complex<T>>& operator *= (T n) {
+	matrix<complex<T>>& operator *= (complex <T> n) {
 		for (size_t i = 0; i < _rows; i++)
 		{
 			for (size_t j = 0; j < _columns; j++)
@@ -495,13 +486,13 @@ public:
 		return *this;
 	}
 
-	matrix<complex<T>> operator*(T n) {
+	matrix<complex<T>> operator*(complex <T> n) {
 		matrix temp(*this);
 		temp *= n;
 		return temp;
 	}
 
-	friend matrix<complex<T>> operator*(T value, const matrix<complex<T>>& m) {
+	friend matrix<complex<T>> operator*(complex <T> value, const matrix<complex<T>>& m) {
 		matrix temp(m);
 		temp *= value;
 		return temp;
@@ -530,7 +521,7 @@ public:
 	//метод вычислени€ следа матрицы - сумма членов главной диагонали, при условии, что матрица - квадратична€
 	complex<T> trace() {
 		if (_rows != _columns) throw "The matrix is not square";
-		complex<T> trace = 0;
+		complex<T> trace(0,0);
 		for (size_t i = 0; i < _rows; i++)
 		{
 			for (size_t j = 0; j < _columns; j++)
@@ -579,31 +570,6 @@ public:
 			return m.data[0][0] * m.data[1][1] * m.data[2][2] + m.data[1][0] * m.data[2][1] * m.data[0][2] + m.data[0][1] * m.data[1][2] * m.data[2][0] -
 				m.data[0][2] * m.data[1][1] * m.data[2][0] - m.data[2][1] * m.data[1][2] * m.data[0][0] - m.data[1][0] * m.data[0][1] * m.data[2][2];
 		}
-	}
-
-	matrix<complex<T>>& operator = (const matrix<complex<T>>& m) {
-		for (size_t i = 0; i < _rows; i++)
-		{
-			delete[] data[i];
-		}
-		delete[] data;
-		data = new complex<T> *[m._rows];
-		for (size_t i = 0; i < m._rows; ++i)
-		{
-			data[i] = new complex<T>[m._columns];
-		}
-
-		_rows = m._rows;
-		_columns = m._columns;
-
-		for (size_t i = 0; i < _rows; i++)
-		{
-			for (size_t j = 0; j < _columns; j++)
-			{
-				data[i][j] = m.data[i][j];
-			}
-		}
-		return *this;
 	}
 
 	friend bool complanarns(const matrix<complex<T>>& a) {
@@ -1123,7 +1089,6 @@ int main()
 
 			matrix<complex<double>> a;
 			matrix<complex<double>> b;
-			double n = 0;
 			complex<double> nn = (0, 0);
 			while (true) {
 
@@ -1151,12 +1116,6 @@ int main()
 					cout << "1 - Work with first matrix" << endl;
 					cout << "2 - Work with second matrix" << endl;
 					while (l != '1' && l != '2') l = _getch();
-					system("cls");
-				}
-				if (z == '6')
-				{
-					cout << "Enter  scalar value" << endl;
-					cin >> n;
 					system("cls");
 				}
 				if (z == '1')
@@ -1284,13 +1243,22 @@ int main()
 				{
 					matrix<complex<double>> d;
 					matrix<complex<double>> f;
+
+					double temp_real, temp_imag;
+					cout << "Enter the value: " << endl;
+					cout << "Real: " << endl;
+					cin >> temp_real;
+					cout << "Imag: " << endl;
+					cin >> temp_imag;
+					nn = complex<double>(temp_real, temp_imag);
+
 					cout << "Multiplication matrix by scalar" << endl;
-					if (l == '1') d = a * n;
-					else d = b * n;
+					if (l == '1') d = a * nn;
+					else d = b * nn;
 					cout << d;
 					cout << "\nMultiplication scalar by matrix" << endl;
-					if (l == '1') f = n * a;
-					else f = n * b;
+					if (l == '1') f = nn * a;
+					else f = nn * b;
 					cout << f;
 					if (_getch()) z = 0;
 					system("cls");

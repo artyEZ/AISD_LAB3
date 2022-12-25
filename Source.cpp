@@ -282,6 +282,26 @@ public:
 		}
 	}
 
+	matrix<T>& operator = (const matrix<T>& m) {
+
+		vector<vector<T>> temp(m._rows, vector<T>(m._columns));
+
+		_rows = m._rows;
+		_columns = m._columns;
+
+		for (size_t i = 0; i < _rows; i++)
+		{
+			for (size_t j = 0; j < _columns; j++)
+			{
+				temp[i][j] = m.data[i][j];
+			}
+		}
+
+		data = temp;
+
+		return *this;
+	}
+
 	friend bool complanarns(const matrix<T>& a) {
 		if (a._columns != 3 and a._rows != 3) throw("Invalid size of matrix");
 		T  det = determinant(a, a.get_columns());
@@ -570,6 +590,26 @@ public:
 			return m.data[0][0] * m.data[1][1] * m.data[2][2] + m.data[1][0] * m.data[2][1] * m.data[0][2] + m.data[0][1] * m.data[1][2] * m.data[2][0] -
 				m.data[0][2] * m.data[1][1] * m.data[2][0] - m.data[2][1] * m.data[1][2] * m.data[0][0] - m.data[1][0] * m.data[0][1] * m.data[2][2];
 		}
+	}
+
+	matrix<complex<T>>& operator = (const matrix<complex<T>>& m) {
+
+		vector<vector<complex<T>>> temp(m._rows, vector<complex<T>>(m._columns));
+
+		_rows = m._rows;
+		_columns = m._columns;
+
+		for (size_t i = 0; i < _rows; i++)
+		{
+			for (size_t j = 0; j < _columns; j++)
+			{
+				temp[i][j] = m.data[i][j];
+			}
+		}
+
+		data = temp;
+
+		return *this;
 	}
 
 	friend bool complanarns(const matrix<complex<T>>& a) {

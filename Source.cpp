@@ -282,25 +282,7 @@ public:
 		}
 	}
 
-	matrix<T>& operator = (const matrix<T>& m) {
-
-		vector<vector<T>> temp(m._rows, vector<T>(m._columns));
-
-		_rows = m._rows;
-		_columns = m._columns;
-
-		for (size_t i = 0; i < _rows; i++)
-		{
-			for (size_t j = 0; j < _columns; j++)
-			{
-				temp[i][j] = m.data[i][j];
-			}
-		}
-
-		data = temp;
-
-		return *this;
-	}
+	matrix<T>& operator = (const matrix<T>& m) = default;
 
 	friend bool complanarns(const matrix<T>& a) {
 		if (a._columns != 3 and a._rows != 3) throw("Invalid size of matrix");
@@ -592,25 +574,8 @@ public:
 		}
 	}
 
-	matrix<complex<T>>& operator = (const matrix<complex<T>>& m) {
-
-		vector<vector<complex<T>>> temp(m._rows, vector<complex<T>>(m._columns));
-
-		_rows = m._rows;
-		_columns = m._columns;
-
-		for (size_t i = 0; i < _rows; i++)
-		{
-			for (size_t j = 0; j < _columns; j++)
-			{
-				temp[i][j] = m.data[i][j];
-			}
-		}
-
-		data = temp;
-
-		return *this;
-	}
+	matrix<complex<T>>& operator = (const matrix<complex<T>>& m) = default;
+	
 
 	friend bool complanarns(const matrix<complex<T>>& a) {
 		if (a._columns != 3 and a._rows != 3) throw("Invalid size of matrix");
